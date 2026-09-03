@@ -4,14 +4,12 @@ export default function Sidebar() {
   return (
     <div>
       <aside>
-        <h1>Home</h1>
-        <h1>Dashboard</h1>
-        <h1>Products</h1>
+        <h1>Inventory</h1>
 
         <nav>
-          <NavLink to="/home"></NavLink>
-          <NavLink to="/dashboard"></NavLink>
-          <NavLink to="/products"></NavLink>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/dashboard">Dashboard</NavLink>
+          <NavLink to="/products">Products</NavLink>
         </nav>
       </aside>
     </div>

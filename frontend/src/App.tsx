@@ -3,15 +3,13 @@ import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
+import Sidebar from "./component/Sidebar";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="text-red-200">
-        <NavLink to="/">home</NavLink>
-        <NavLink to="/dashboard">Dashboard</NavLink>
-        <NavLink to="/products">Products</NavLink>
-
+      <div className="text-black">
+        <Sidebar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
