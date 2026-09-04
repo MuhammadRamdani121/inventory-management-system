@@ -8,15 +8,13 @@ import Layout from "./component/Layout";
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="text-black">
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="products" element={<Products />} />
-          </Route>
-        </Routes>
-      </div>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="products" element={<Products />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }

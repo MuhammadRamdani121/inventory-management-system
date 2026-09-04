@@ -9,9 +9,30 @@ export default function Sidebar() {
         </h1>
 
         <nav className="flex flex-col gap-2">
-          <NavLink to="/">🏠 Home</NavLink>
-          <NavLink to="/dashboard">📊 Dashboard</NavLink>
-          <NavLink to="/products">📦 Products</NavLink>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              isActive ? "text-black underline" : "text-black"
+            }
+          >
+            🏠 Home
+          </NavLink>
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              isActive ? "text-black underline" : "text-black"
+            }
+          >
+            📊 Dashboard
+          </NavLink>
+          <NavLink
+            to="/products"
+            className={({ isActive }) =>
+              isActive ? "text-black underline" : "text-black"
+            }
+          >
+            📦 Products
+          </NavLink>
         </nav>
       </aside>
     </div>
