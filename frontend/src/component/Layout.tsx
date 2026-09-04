@@ -3,16 +3,14 @@ import Sidebar from "./Sidebar";
 
 export default function Layout() {
   return (
-    <div>
-      <main className="flex min-h-screen border-2">
-        <header className="border-2 ">
-          <Sidebar />
-        </header>
+    <main className="flex min-h-screen border-2">
+      <aside className="border-2 ">
+        <Sidebar />
+      </aside>
 
-        <section className="flex justify-center items-center w-full">
-          <Outlet />
-        </section>
-      </main>
-    </div>
+      <section className="flex flex-1 justify-center items-center w-full border-2">
+        <Outlet />
+      </section>
+    </main>
   );
 }
