@@ -1,15 +1,11 @@
 import { NavLink } from "react-router-dom";
+import { menu } from "../data/Menu";
 
 export default function Sidebar() {
-  const menu = [
-    { path: "/", label: "Home", icon: "🏠 " },
-    { path: "/dashboard", label: "Dashboard", icon: "📊 " },
-    { path: "/products", label: "Products", icon: " 📦 " },
-  ];
   return (
     <div>
-      <aside className="w-64 min-h-screen flex flex-col gap-2 p-4">
-        <h1 className="text-xl font-bold text-center border-b-2">
+      <aside className="flex min-h-screen w-64 flex-col gap-2 p-4">
+        <h1 className="border-b-2 text-center text-xl font-bold">
           Inventory Management System
         </h1>
 
@@ -20,8 +16,8 @@ export default function Sidebar() {
               to={menu.path}
               className={({ isActive }) =>
                 isActive
-                  ? "text-black bg-gray-200 rounded px-3 py-2"
-                  : "text-black px-3 py-2"
+                  ? "flex items-center gap-3 rounded bg-gray-200 px-3 py-2 text-black"
+                  : "px-3 py-2 text-black"
               }
             >
               {({ isActive }) => (
