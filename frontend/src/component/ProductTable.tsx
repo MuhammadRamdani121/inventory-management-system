@@ -13,6 +13,7 @@ export default function ProductTable({ products }: ProductTableProps) {
           <th className="p-3">Product</th>
           <th className="p-3">Category</th>
           <th className="p-3">Stock</th>
+          <th className="p-3">Status</th>
           <th className="p-3">Price</th>
         </tr>
       </thead>
@@ -24,6 +25,13 @@ export default function ProductTable({ products }: ProductTableProps) {
             <td className="p-3">{product.name}</td>
             <td className="p-3">{product.category}</td>
             <td className="p-3">{product.stock}</td>
+            <td className="p-3">
+              {product.stock === 0
+                ? "Out of Stock"
+                : product.stock <= 5
+                  ? "Low Stock"
+                  : "In Stock"}
+            </td>
             <td className="p-3">Rp{product.price}</td>
           </tr>
         ))}
