@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type FormEventHandler } from "react";
 import type { Product } from "../types/Product";
 import ProductTable from "../component/ProductTable";
 
 export default function Products() {
+  // Membuat UseState
   const [products, setProducts] = useState<Product[]>([
     {
       id: 1,
@@ -49,6 +50,9 @@ export default function Products() {
     category: "",
   });
 
+  // Membuat UseState Edit Product
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
   // data category
   const categories = ["All", "Electronics"];
 
@@ -82,6 +86,26 @@ export default function Products() {
     setProducts([...products, newProduct]);
 
     setIsFormOpen(false);
+  }
+
+  function handleUpdate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!editingProduct) return;
+
+    const updateProducts = products.map((product) =>
+      product.id === editingProduct.id
+        ? {
+            ...product,
+            name: formData.name,
+            price: formData.price,
+            stock: formData.stock,
+            category: formData.category,
+          }
+        : product,
+    );
+    setProducts(updateProducts);
+    setEditingProduct(null);
   }
   return (
     <div>
@@ -173,7 +197,69 @@ export default function Products() {
         </div>
       )}
 
-      <ProductTable products={filterProducts} />
+      {/* form edit */}
+      {editingProduct && (
+        <div>
+          <h2>Edit Product</h2>
+          <form onSubmit={handleUpdate}>
+            <input
+              type="text"
+              placeholder="Product Name"
+              value={formData.name}
+              onChange={(event) =>
+                setFormData({ ...formData, name: event.target.value })
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Price"
+              value={formData.price}
+              onChange={(event) =>
+                setFormData({ ...formData, price: Number(event.target.value) })
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Stock"
+              value={formData.stock}
+              onChange={(event) =>
+                setFormData({ ...formData, stock: Number(event.target.value) })
+              }
+            />
+
+            <input
+              type="text"
+              placeholder="Category"
+              value={formData.category}
+              onChange={(event) =>
+                setFormData({ ...formData, category: event.target.value })
+              }
+            />
+
+            <button type="submit">Update</button>
+
+            <button type="button" onClick={() => setEditingProduct(null)}>
+              Cancel
+            </button>
+          </form>
+        </div>
+      )}
+
+      <ProductTable
+        products={filterProducts}
+        onEdit={(product) => {
+          setEditingProduct(product);
+
+          setFormData({
+            name: product.name,
+            price: product.price,
+            stock: product.stock,
+            category: product.category,
+          });
+        }}
+      />
     </div>
   );
 }

@@ -2,9 +2,10 @@ import type { Product } from "../types/Product";
 
 type ProductTableProps = {
   products: Product[];
+  onEdit: (product: Product) => void;
 };
 
-export default function ProductTable({ products }: ProductTableProps) {
+export default function ProductTable({ products, onEdit }: ProductTableProps) {
   return (
     <table className="w-full border-collapse">
       <thead>
@@ -15,6 +16,7 @@ export default function ProductTable({ products }: ProductTableProps) {
           <th className="p-3">Stock</th>
           <th className="p-3">Status</th>
           <th className="p-3">Price</th>
+          <th className="p-3">Action</th>
         </tr>
       </thead>
 
@@ -33,6 +35,11 @@ export default function ProductTable({ products }: ProductTableProps) {
                   : "In Stock"}
             </td>
             <td className="p-3">Rp{product.price}</td>
+            <td className="p-3">
+              <button type="button" onClick={() => onEdit(product)}>
+                Edit
+              </button>
+            </td>
           </tr>
         ))}
       </tbody>
