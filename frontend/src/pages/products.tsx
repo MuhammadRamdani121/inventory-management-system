@@ -1,8 +1,12 @@
-import { useState, type FormEvent, type FormEventHandler } from "react";
-import type { Product } from "../types/Product";
+import { useState, type FormEvent } from "react";
+import ProductForm from "../component/ProductForm";
 import ProductTable from "../component/ProductTable";
+import type { Product } from "../types/Product";
 
 export default function Products() {
+  function handleFormChange(field: string, value: string | number) {
+    setFormData({ ...formData, [field]: value });
+  }
   // Membuat UseState
   const [products, setProducts] = useState<Product[]>([
     {
@@ -107,159 +111,125 @@ export default function Products() {
     setProducts(updateProducts);
     setEditingProduct(null);
   }
+
+  function handleDelete(id: number) {
+    const updateProducts = products.filter((product) => product.id !== id);
+
+    setProducts(updateProducts);
+  }
+
+  function resetForm() {
+    setFormData({
+      name: "",
+      price: 0,
+      stock: 0,
+      category: "",
+    });
+  }
   return (
-    <div>
-      <h1>Product</h1>
+    <div className="w-full p-6">
+      {/* Header */}
+      <header className="mb-6 flex items-center justify-between">
+        <nav>
+          <h1 className="text-2xl font-bold">Product</h1>
+          <p className="text-sm text-gray-200">
+            Manage Your Inventory Products
+          </p>
+        </nav>
 
-      {/* Menambahkan Fitur Search Menggunakan UseState */}
-      <input
-        type="text"
-        placeholder="Search Product"
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-      />
+        <nav className="mb-4 flex gap-3">
+          {/* Menambahkan Fitur Tombol Tambah */}
+          <button
+            type="button"
+            onClick={() => {
+              resetForm();
+              setIsFormOpen(false);
+              setIsFormOpen(true);
+            }}
+            className="rounded bg-black px-4 py-2 text-white"
+          >
+            Tambah Product
+          </button>
 
-      {/* Menambahkan fitur dropdown category */}
+          {/* Menambahkan Fitur Search Menggunakan UseState */}
+          <input
+            type="text"
+            placeholder="Search Product"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="rounded border-3 px-3 py-2"
+          />
 
-      <select
-        value={category}
-        onChange={(event) => setCategory(event.target.value)}
-      >
-        {categories.map((category) => (
-          <option key={category} value={category}>
-            {category}
-          </option>
-        ))}
-      </select>
+          {/* Menambahkan fitur dropdown category */}
+          <select
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="rounded border-3 px-3 py-2"
+          >
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
 
-      {/* Menambahkan fitur dropdown Stock */}
-      <select
-        value={stockStatus}
-        onChange={(event) => setStockStatus(event.target.value)}
-      >
-        {stockStatuses.map((status) => (
-          <option key={status} value={status}>
-            {status}
-          </option>
-        ))}
-      </select>
+          {/* Menambahkan fitur dropdown Stock */}
+          <select
+            value={stockStatus}
+            onChange={(event) => setStockStatus(event.target.value)}
+            className="rounded border-3 px-3 py-2"
+          >
+            {stockStatuses.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        </nav>
+      </header>
 
-      {/* Menambahkan Fitur Tombol Tambah */}
-      <button type="button" onClick={() => setIsFormOpen(true)}>
-        Tambah Product
-      </button>
-      {isFormOpen && (
-        <div>
-          <h2>Add Product</h2>
+      {/* Body */}
+      <main className="overflow-hidden rounded-lg border bg-white">
+        <ProductTable
+          products={filterProducts}
+          onEdit={(product) => {
+            setEditingProduct(product);
 
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Product Name"
-              value={formData.name}
-              onChange={(event) =>
-                setFormData({ ...formData, name: event.target.value })
-              }
-            />
+            setFormData({
+              name: product.name,
+              price: product.price,
+              stock: product.stock,
+              category: product.category,
+            });
+          }}
 
-            <input
-              type="number"
-              placeholder="Price"
-              value={formData.price}
-              onChange={(event) =>
-                setFormData({ ...formData, price: Number(event.target.value) })
-              }
-            />
+          onDelete={handleDelete}
+        />
 
-            <input
-              type="number"
-              placeholder="Stock"
-              value={formData.stock}
-              onChange={(event) =>
-                setFormData({ ...formData, stock: Number(event.target.value) })
-              }
-            />
+        {isFormOpen && (
+          <ProductForm
+            formData={formData}
+            onChange={handleFormChange}
+            onSubmit={handleSubmit}
+            onCancel={() => setIsFormOpen(false)}
+            isEdit={false}
+          />
+        )}
 
-            <input
-              type="text"
-              placeholder="Category"
-              value={formData.category}
-              onChange={(event) =>
-                setFormData({ ...formData, category: event.target.value })
-              }
-            />
-
-            <button type="submit">Tambah</button>
-            <button type="button" onClick={() => setIsFormOpen(false)}>
-              Cancel
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* form edit */}
-      {editingProduct && (
-        <div>
-          <h2>Edit Product</h2>
-          <form onSubmit={handleUpdate}>
-            <input
-              type="text"
-              placeholder="Product Name"
-              value={formData.name}
-              onChange={(event) =>
-                setFormData({ ...formData, name: event.target.value })
-              }
-            />
-
-            <input
-              type="number"
-              placeholder="Price"
-              value={formData.price}
-              onChange={(event) =>
-                setFormData({ ...formData, price: Number(event.target.value) })
-              }
-            />
-
-            <input
-              type="number"
-              placeholder="Stock"
-              value={formData.stock}
-              onChange={(event) =>
-                setFormData({ ...formData, stock: Number(event.target.value) })
-              }
-            />
-
-            <input
-              type="text"
-              placeholder="Category"
-              value={formData.category}
-              onChange={(event) =>
-                setFormData({ ...formData, category: event.target.value })
-              }
-            />
-
-            <button type="submit">Update</button>
-
-            <button type="button" onClick={() => setEditingProduct(null)}>
-              Cancel
-            </button>
-          </form>
-        </div>
-      )}
-
-      <ProductTable
-        products={filterProducts}
-        onEdit={(product) => {
-          setEditingProduct(product);
-
-          setFormData({
-            name: product.name,
-            price: product.price,
-            stock: product.stock,
-            category: product.category,
-          });
-        }}
-      />
+        {/* form edit */}
+        {editingProduct && (
+          <ProductForm
+            formData={formData}
+            onChange={handleFormChange}
+            onSubmit={handleUpdate}
+            onCancel={() => {
+              resetForm();
+              setEditingProduct(null);
+            }}
+            isEdit={true}
+          />
+        )}
+      </main>
     </div>
   );
 }

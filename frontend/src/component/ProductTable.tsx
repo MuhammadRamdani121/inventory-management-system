@@ -3,9 +3,14 @@ import type { Product } from "../types/Product";
 type ProductTableProps = {
   products: Product[];
   onEdit: (product: Product) => void;
+  onDelete: (id: number) => void;
 };
 
-export default function ProductTable({ products, onEdit }: ProductTableProps) {
+export default function ProductTable({
+  products,
+  onEdit,
+  onDelete,
+}: ProductTableProps) {
   return (
     <table className="w-full border-collapse">
       <thead>
@@ -38,6 +43,10 @@ export default function ProductTable({ products, onEdit }: ProductTableProps) {
             <td className="p-3">
               <button type="button" onClick={() => onEdit(product)}>
                 Edit
+              </button>
+
+              <button type="button" onClick={() => onDelete(product.id)}>
+                Delete
               </button>
             </td>
           </tr>
