@@ -58,4 +58,23 @@ router.get("/:id", (req, res) => {
   res.json(product);
 });
 
+router.put("/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  const product = products.find((product) => product.id === id);
+
+  if (!product) {
+    return res.status(404).json({
+      message: "Product Not Found",
+    });
+  }
+
+  product.name = req.body.name;
+  product.price = req.body.price;
+  product.stock = req.body.stock;
+  product.category = req.body.category;
+
+  res.json(product);
+});
+
 export default router;
