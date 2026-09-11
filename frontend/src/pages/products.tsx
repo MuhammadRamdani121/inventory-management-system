@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useEffect } from "react";
 import ProductForm from "../component/ProductForm";
 import ProductTable from "../component/ProductTable";
 import type { Product } from "../types/Product";
@@ -8,36 +8,30 @@ export default function Products() {
     setFormData({ ...formData, [field]: value });
   }
   // Membuat UseState
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: "Keyboard",
-      price: 250000,
-      stock: 20,
-      category: "Electronics",
-    },
-    {
-      id: 2,
-      name: "Mouse",
-      price: 150000,
-      stock: 15,
-      category: "Electronics",
-    },
-    {
-      id: 3,
-      name: "Monitor",
-      price: 1500000,
-      stock: 5,
-      category: "Electronics",
-    },
-    {
-      id: 4,
-      name: "Monitor",
-      price: 1500000,
-      stock: 0,
-      category: "PC",
-    },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch("http://localhost:3000/api/products");
+
+        const data = await response.json();
+
+        const formattedProducts: Product[] = data.map(
+          (product: Omit<Product, "price"> & { price: string | number }) => ({
+            ...product,
+            price: Number(product.price),
+          }),
+        );
+
+        setProducts(formattedProducts);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchProducts();
+  }, []);
   // Menambahkan UseState Filter
   const [search, setSearch] = useState("");
   // Menambahkan UseState SetCategory
@@ -76,21 +70,32 @@ export default function Products() {
         (stockStatus === "Out of Stock" && product.stock === 0)),
   );
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newProduct: Product = {
-      id: products.length + 1,
-      name: formData.name,
-      price: formData.price,
-      stock: formData.stock,
-      category: formData.category,
-    };
+    try {
+      const response = await fetch("http://localhost:3000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-    setProducts([...products, newProduct]);
+      if (!response.ok) {
+        throw new Error("Failed to create product");
+      }
 
-    setIsFormOpen(false);
-  }
+      const newProduct: Product = await response.json();
+
+      setProducts((products) => [...products, newProduct]);
+
+      resetForm();
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   function handleUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
