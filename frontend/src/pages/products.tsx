@@ -4,21 +4,35 @@ import ProductTable from "../component/ProductTable";
 import type { Product } from "../types/Product";
 
 export default function Products() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [deleteProductId, setDeleteProductId] = useState<number | null>(null);
+
   function handleFormChange(field: string, value: string | number) {
     setFormData({ ...formData, [field]: value });
   }
-  // Membuat UseState
-  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     async function fetchProducts() {
       try {
+        setLoading(true);
+        setError("");
+
         const response = await fetch("http://localhost:3000/api/products");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
 
         const data = await response.json();
 
         const formattedProducts: Product[] = data.map(
-          (product: Omit<Product, "price"> & { price: string | number }) => ({
+          (
+            product: Omit<Product, "price"> & {
+              price: string | number;
+            },
+          ) => ({
             ...product,
             price: Number(product.price),
           }),
@@ -27,11 +41,15 @@ export default function Products() {
         setProducts(formattedProducts);
       } catch (error) {
         console.error(error);
+        setError("Gagal mengambil data product.");
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchProducts();
   }, []);
+
   // Menambahkan UseState Filter
   const [search, setSearch] = useState("");
   // Menambahkan UseState SetCategory
@@ -73,55 +91,91 @@ export default function Products() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // VALIDATION
+    if (!formData.name.trim()) {
+      alert("Product name wajib diisi");
+      return;
+    }
+
+    if (formData.price <= 0) {
+      alert("Price harus lebih dari 0");
+      return;
+    }
+
+    if (formData.stock < 0) {
+      alert("Stock tidak boleh kurang dari 0");
+      return;
+    }
+
+    if (!formData.category.trim()) {
+      alert("Category wajib diisi");
+      return;
+    }
+
+    // setelah ini baru POST / PUT
+  };
+
+  const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!editingProduct) return;
+
     try {
-      const response = await fetch("http://localhost:3000/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `http://localhost:3000/api/products/${editingProduct.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to create product");
+        throw new Error("Failed to update product");
       }
 
-      const newProduct: Product = await response.json();
+      const updatedProduct: Product = await response.json();
 
-      setProducts((products) => [...products, newProduct]);
+      setProducts((products) =>
+        products.map((product) =>
+          product.id === updatedProduct.id ? updatedProduct : product,
+        ),
+      );
 
       resetForm();
+      setEditingProduct(null);
       setIsFormOpen(false);
     } catch (error) {
       console.error(error);
     }
   };
 
-  function handleUpdate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const handleDelete = async () => {
+    if (deleteProductId === null) return;
 
-    if (!editingProduct) return;
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/products/${deleteProductId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
-    const updateProducts = products.map((product) =>
-      product.id === editingProduct.id
-        ? {
-            ...product,
-            name: formData.name,
-            price: formData.price,
-            stock: formData.stock,
-            category: formData.category,
-          }
-        : product,
-    );
-    setProducts(updateProducts);
-    setEditingProduct(null);
-  }
+      if (!response.ok) {
+        throw new Error("Failed to delete product");
+      }
 
-  function handleDelete(id: number) {
-    const updateProducts = products.filter((product) => product.id !== id);
+      setProducts((products) =>
+        products.filter((product) => product.id !== deleteProductId),
+      );
 
-    setProducts(updateProducts);
-  }
+      setDeleteProductId(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   function resetForm() {
     setFormData({
@@ -131,6 +185,23 @@ export default function Products() {
       category: "",
     });
   }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Loading products...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full p-6">
       {/* Header */}
@@ -208,7 +279,7 @@ export default function Products() {
             });
           }}
 
-          onDelete={handleDelete}
+          onDelete={(id) => setDeleteProductId(id)}
         />
 
         {isFormOpen && (
@@ -235,6 +306,36 @@ export default function Products() {
           />
         )}
       </main>
+
+      {deleteProductId !== null && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-2 text-xl font-bold">Hapus Product?</h2>
+
+            <p className="mb-6 text-gray-600">
+              Apakah kamu yakin ingin menghapus product ini?
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteProductId(null)}
+                className="rounded border px-4 py-2"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="rounded bg-red-600 px-4 py-2 text-white"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

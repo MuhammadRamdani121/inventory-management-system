@@ -39,7 +39,8 @@ export default function ProductTable({
                   ? "Low Stock"
                   : "In Stock"}
             </td>
-            <td className="p-3">Rp{product.price}</td>
+            <td>{Number(product.price).toLocaleString("id-ID")}</td>
+
             <td className="p-3">
               <button type="button" onClick={() => onEdit(product)}>
                 Edit
